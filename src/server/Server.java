@@ -14,10 +14,6 @@ import objects.Streams;
 
 import java.awt.Dimension;
 
-/**
- * @author vaibhav
- *
- */
 public class Server {
 	
 	 /**
@@ -41,35 +37,19 @@ public class Server {
 				if(str == null) System.exit(0);			
 				str = str.trim();
 				pNumber = Integer.parseInt(str);
-//				new SwingWorker<Object, Object>() {
-//
-//					@Override
-//					protected Object doInBackground() throws Exception {
 						try {
 							Server.this.server = new ServerSocket(pNumber);
 						} catch(IOException ioe) {
 							System.out.println("Could't connect to server: " + ioe.getMessage());
 						}
-//						return null;
-//					}
-//
-//					@Override
-//					protected void done() {	
 						if(server == null) {							
 							JOptionPane.showMessageDialog(frame, "Port in Use!", "Error!" , JOptionPane.ERROR_MESSAGE);
-//							new Server();
+
 							System.exit(0);
 						}
-//						} else {						
+
 							setGUI();
-////						}
-////						super.done();
-////					}				
-////					
-////				}.execute();	
-//				
-//			}
-//		});	
+
 			}
 		});
 		

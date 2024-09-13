@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 
 package objects;
@@ -17,4 +17,6 @@ public enum MessageType {
 	SEND_CLIENT_LIST_LEFT,
 	CLIENT_PRIVATE_MESSAGE,
 	CLIENT_GLOBAL_MESSAGE,
+	CLIENT_FILE_TRANSFER, // Add new message type for file transfers
+	SERVER_FILE_TRANSFER
 }

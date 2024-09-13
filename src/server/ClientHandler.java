@@ -12,10 +12,7 @@ import objects.Streams;
 
 import java.io.*;
 
-/**
- * @author vaibhav
- *
- */
+
 public class ClientHandler implements Runnable {
 
 	/*

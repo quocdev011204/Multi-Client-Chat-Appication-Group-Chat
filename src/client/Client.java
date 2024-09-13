@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package client;
 
@@ -43,12 +43,12 @@ public class Client {
 	public static void main(String[] args) throws IOException {
 		new Client();
 	}
-	
+
 	/*
-	 * connect to the server, store input/output streams and setup GUI for client interaction 
+	 * connect to the server, store input/output streams and setup GUI for client interaction
 	 */
-	Client() {		
-					
+	Client() {
+
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -58,7 +58,7 @@ public class Client {
 					System.out.println("Could't connect to server: " + ioe.getMessage());
 				}
 			}
-		});	
+		});
 	}
 
 	/*
@@ -76,7 +76,7 @@ public class Client {
 		server = str;
 		System.out.println("Connecting to server...");
 		message = "Using port number 50000\nTo connect to a different port, type the port number:\n";
-		String str_ = (String)JOptionPane.showInputDialog(frame, message, "50000");
+		String str_ = (String)JOptionPane.showInputDialog(frame, "192.168.110.225", "50000");
 		if(str_ == null) System.exit(0);
 		str_ = str_.trim();
 		pNumber = Integer.parseInt(str_);
@@ -88,15 +88,15 @@ public class Client {
 				System.out.println("Connected");
 				return null;
 			}
-			
+
 		}.execute();
 	}
-	
+
 	/*
 	 * generate GUI for user interaction
 	 */
-	private void startChatGUI() throws IOException {	
-		
+	private void startChatGUI() throws IOException {
+
 		/*
 		 * showing input dialog box asking client to enter their name and sending it to server
 		 */
@@ -121,14 +121,14 @@ public class Client {
 				out.flush();
 				return null;
 			}
-			
+
 		}.execute();
-		
+
 		/*
 		 * start a helper thread that keeps on reading messages from server and also sets up private chatting GUI
 		 */
 		new Thread(new ClientHelper(this)).start();
-		
+
 		/*
 		 * set global chatting GUI
 		 */
@@ -146,7 +146,7 @@ public class Client {
 		messageText = new JTextArea();
 		sendButton = new JButton("Send");
 		sendButton.setMargin(new Insets(1,1,1,1));
-		
+
 		/*
 		 * send the message to all the clients
 		 */
@@ -158,9 +158,9 @@ public class Client {
 						out.flush();
 					} catch(IOException ioe) {
 						System.out.println("Error establishing connection: " + ioe.getMessage());
-					}			
-					messageText.setText("");			
-				} 		
+					}
+					messageText.setText("");
+				}
 			}
 		});
 		globalChat.setViewportView(globalChatArea);
@@ -169,19 +169,19 @@ public class Client {
 		leftPanel.setBorder(BorderFactory.createTitledBorder("Global Chat"));
 		leftPanel.setFont(leftPanel.getFont().deriveFont(18f));
 
-		
+
 		GridBagConstraints gbc = new GridBagConstraints();
 		Insets insets = new Insets(5,5,5,5);
-		
+
 		addComponent(leftPanel,globalChat, gbc, GridBagConstraints.BOTH, GridBagConstraints.CENTER, 1, 1, 0, 1, 2, 1, insets);
 		addComponent(leftPanel,messageArea, gbc, GridBagConstraints.BOTH, GridBagConstraints.CENTER, 1, 0, 0, 2, 1, 1, insets);
 		addComponent(leftPanel,sendButton, gbc, GridBagConstraints.NONE, GridBagConstraints.CENTER, 0, 0, 1, 2, 1, 1, insets);
-		
+
 		splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
 		splitPane.setDividerLocation(300);
 		splitPane.setLeftComponent(leftPanel);
 		splitPane.setRightComponent(rightPanel);
-		
+
 		frame.setPreferredSize(new Dimension(600,400));
 		frame.setLayout(new GridLayout());
 		frame.add(splitPane);
@@ -189,7 +189,7 @@ public class Client {
 		frame.setVisible(true);
 		System.out.println("visible");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
+
 		/*
 		 * request for client list from server initially to show online clients as the client joins chat
 		 */
@@ -197,16 +197,16 @@ public class Client {
 //
 //			@Override
 //			protected Object doInBackground() throws Exception {
-				
-				out.writeObject(new Message());
-				out.flush();
+
+		out.writeObject(new Message());
+		out.flush();
 //				return null;
 //			}
-//			
+//
 //		}.execute();
-		
+
 	}
-	
+
 	/*
 	 * helper method for adding gridbaglayout constraints
 	 */
@@ -222,7 +222,7 @@ public class Client {
 		gbc.insets = insets;
 		parent.add(child, gbc);
 	}
-	
+
 	/*
 	 * getters
 	 */
@@ -245,7 +245,7 @@ public class Client {
 	public JTextArea getGlobalChatArea() {
 		return globalChatArea;
 	}
-	
+
 	public JFrame getFrame() {
 		return frame;
 	}
@@ -257,7 +257,7 @@ public class Client {
 	private ObjectInputStream in;
 	private ObjectOutputStream out;
 	private String name;
-	
+
 	private JFrame frame;
 	private JSplitPane splitPane;
 	private JPanel leftPanel;
