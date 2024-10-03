@@ -5,16 +5,7 @@ package client;
 
 import java.net.*;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTextArea;
-import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
+import javax.swing.*;
 
 import objects.Message;
 import objects.MessageType;
@@ -31,16 +22,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
 
-/**
- * @author vaibhav
- *
- */
+
 public class Client {
 
 	/*
 	 * main method of the Main-Class of the Client.jar file
 	 */
 	public static void main(String[] args) throws IOException {
+		// Gọi đến constructor Client
 		new Client();
 	}
 
@@ -52,7 +41,9 @@ public class Client {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				try {
+					// Gọi đến startConnection để kết nối với server
 					startConnection();
+					// Gọi đến startChatGUI để thiết lập giao diẹn trò chuyện
 					startChatGUI();
 				} catch(IOException ioe) {
 					System.out.println("Could't connect to server: " + ioe.getMessage());
@@ -76,14 +67,16 @@ public class Client {
 		server = str;
 		System.out.println("Connecting to server...");
 		message = "Using port number 50000\nTo connect to a different port, type the port number:\n";
-		String str_ = (String)JOptionPane.showInputDialog(frame, "192.168.110.225", "50000");
+		String str_ = (String)JOptionPane.showInputDialog(frame, message, "50000");
 		if(str_ == null) System.exit(0);
 		str_ = str_.trim();
 		pNumber = Integer.parseInt(str_);
+		// Sử dụng SwingWorker để thực hiện kết nối mạng trong nền, không làm đông GUI
 		new SwingWorker<Object, Object>() {
 
 			@Override
 			protected Object doInBackground() throws Exception {
+				// Tạo một Socket để kết nối đến server với địa chỉ ip và số port đã nhập
 				socket = new Socket(server, pNumber);
 				System.out.println("Connected");
 				return null;
@@ -95,6 +88,7 @@ public class Client {
 	/*
 	 * generate GUI for user interaction
 	 */
+	// Bắt đầu trò chuyện
 	private void startChatGUI() throws IOException {
 
 		/*
@@ -133,17 +127,21 @@ public class Client {
 		 * set global chatting GUI
 		 */
 		frame.setTitle("Connected to server at: " + socket.getRemoteSocketAddress().toString());
+		// JSplitPane dùng để chia thành 2 phần
 		splitPane = new JSplitPane();
 		splitPane.setBorder(BorderFactory.createTitledBorder(str));
 		leftPanel = new JPanel();
 		rightPanel = new JPanel();
+		// Thanh Scroll
 		globalChat = new JScrollPane();
+		// Để hiển thị tin nhắn toàn hệ thống
 		globalChatArea = new JTextArea();
 		globalChatArea.setEditable(false);
 		globalChatArea.setFont(globalChatArea.getFont().deriveFont(18f));
-		globalChatArea.setBackground(new Color(135, 161, 204));
+		globalChatArea.setBackground(new Color(77, 149, 37));
 		messageArea = new JScrollPane();
 		messageText = new JTextArea();
+		// Button gửi tin nhắn
 		sendButton = new JButton("Send");
 		sendButton.setMargin(new Insets(1,1,1,1));
 
@@ -182,7 +180,60 @@ public class Client {
 		splitPane.setLeftComponent(leftPanel);
 		splitPane.setRightComponent(rightPanel);
 
-		frame.setPreferredSize(new Dimension(600,400));
+
+		// Tạo middlePanel
+		JPanel middlePanel = new JPanel();
+		middlePanel.setLayout(new GridBagLayout());
+		middlePanel.setPreferredSize(new Dimension(500, 600));
+		middlePanel.setBorder(BorderFactory.createTitledBorder("Middle Panel")); // Đặt tiêu đề cho middlePanel
+
+		// Tạo nút "Join Group" và "Create Group"
+		JButton joinGroupButton = new JButton("Join Group");
+		JButton createGroupButton = new JButton("Create Group");
+
+		gbc.insets = new Insets(5, 5, 5, 5);
+		gbc.fill = GridBagConstraints.HORIZONTAL; // Cho phép nút mở rộng theo chiều ngang
+		gbc.weightx = 1.0; // Cho phép nút mở rộng theo chiều ngang
+		gbc.weighty = 0.0; // Không cho phép mở rộng theo chiều dọc (nút Join Group)
+		gbc.gridx = 0; // Cột 0
+		gbc.gridy = 0; // Hàng 0
+		gbc.anchor = GridBagConstraints.NORTH; // Đặt nút ở phía trên cùng
+		middlePanel.add(joinGroupButton, gbc); // Thêm nút Join Group
+
+// Đặt nút Create Group ngay phía dưới nút Join Group
+		gbc.gridy = 1; // Hàng 1 (ngay bên dưới Join Group)
+		gbc.weighty = 1.0; // Để khoảng trống giữa nút Create Group và phần dưới
+		middlePanel.add(createGroupButton, gbc);
+
+
+		joinGroupButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// Xử lý sự kiện cho nút "Join Group"
+				JOptionPane.showMessageDialog(frame, "Join Group button clicked!");
+			}
+		});
+
+		createGroupButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// Xử lý sự kiện cho nút "Create Group"
+				JOptionPane.showMessageDialog(frame, "Create Group button clicked!");
+			}
+		});
+
+		// Tạo một JSplitPane mới cho leftPanel và middlePanel
+		JSplitPane leftMiddleSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, middlePanel);
+		leftMiddleSplitPane.setDividerLocation(350); // Đặt vị trí chia
+		leftMiddleSplitPane.setResizeWeight(0.5); // Tỉ lệ điều chỉnh khi thay đổi kích thước
+
+		// Cập nhật splitPane chính để bao gồm leftMiddleSplitPane và rightPanel
+		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftMiddleSplitPane, rightPanel);
+		splitPane.setDividerLocation(700);
+
+
+
+		frame.setPreferredSize(new Dimension(1200,600));
 		frame.setLayout(new GridLayout());
 		frame.add(splitPane);
 		frame.pack();
@@ -190,26 +241,14 @@ public class Client {
 		System.out.println("visible");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		/*
-		 * request for client list from server initially to show online clients as the client joins chat
-		 */
-//		new SwingWorker<Object, Object>() {
-//
-//			@Override
-//			protected Object doInBackground() throws Exception {
-
 		out.writeObject(new Message());
 		out.flush();
-//				return null;
-//			}
-//
-//		}.execute();
-
 	}
 
 	/*
 	 * helper method for adding gridbaglayout constraints
 	 */
+	// Thêm các thành phần vào Container với rằng buộc GridBagContrains đẻ xác định cụ thể vị trí của ác các thành phần
 	private void addComponent(Container parent, Component child, GridBagConstraints gbc, int fill, int anchor, double weightx, double weighty, int gridx, int gridy, int gridwidth, int gridheight, Insets insets) {
 		gbc.fill = fill;
 		gbc.anchor = anchor;

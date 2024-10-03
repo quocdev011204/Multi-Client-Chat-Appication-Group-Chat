@@ -1,14 +1,16 @@
 /**
- * 
+ *
  */
 package server;
 
 import java.net.*;
 import java.util.ArrayList;
 
+import objects.Group;
 import objects.Message;
 import objects.MessageType;
 import objects.Streams;
+import objects.GroupChat;
 
 import java.io.*;
 
@@ -16,15 +18,17 @@ import java.io.*;
 public class ClientHandler implements Runnable {
 
 	/*
-	 * Constructor : store the input/output streams of the corresponding client's socket 
+	 * Constructor : store the input/output streams of the corresponding client's socket
 	 */
 	ClientHandler(Server server, Socket socket) {
 		try {
 			this.server = server;
+			// Kết nối đến client
 			this.socket = socket;
 			this.out = new ObjectOutputStream(socket.getOutputStream());
-			out.flush();
+			out.flush(); // đảm bảo là dữ liệu được gửi ngay lập tức
 			this.in = new ObjectInputStream(socket.getInputStream());
+			// đầu ra và đầu vô để gửi và nhận tin nhắn từ client
 		} catch (SocketException se) {
 			System.out.println("Error establishing connection: " + se.getMessage());
 		} catch (IOException ioe) {
@@ -38,22 +42,22 @@ public class ClientHandler implements Runnable {
 	public void run() {
 		System.out.println("in thread");
 		try {
-			
+
 			 /*
 			  * get client's name
 			  */
 			Message message = (Message)in.readObject();
 			String str = message.getMessage();
 			name = str;
-				
-			
+
+
 			/*
 			 * store client's name
 			 */
 			server.getClients().put(name,new Streams(in,out));
-            System.out.println(name + " at " + socket.getInetAddress().getHostAddress()+" joined the Chat!");	
+            System.out.println(name + " at " + socket.getInetAddress().getHostAddress()+" joined the Chat!");
             server.getsLabel().setText(server.getsLabel().getText() + "\n\n" + name + " at " + socket.getRemoteSocketAddress()+" joined the Chat!");
-            
+
 			/*
 			 * notify all the clients of new client coming online
 			 */
@@ -67,18 +71,18 @@ public class ClientHandler implements Runnable {
 					}
 				}
 			});
-			
+
 			/*
 			 * start reading for any type of message client sends to server and execute corresponding execution
 			 */
 			while(true) {
-				
+
 				/*
 				 * read the message
 				 */
 				message = (Message)in.readObject();
 				final Message msg = message;
-			
+
 				if(message.getmType() == MessageType.REQUEST_CLIENT_LIST) {
 					/*
 					 * when client requests for list of online clients
@@ -89,7 +93,8 @@ public class ClientHandler implements Runnable {
 					/*
 					 * when client sends a global message
 					 */
-					server.getClients().forEach((k,v) -> {						
+					// Khi client gửi tin nhắn global thì server sẽ gửi nó đến tất cả client khác
+					server.getClients().forEach((k,v) -> {
 						try {
 							v.getOS().writeObject(new Message(msg.getMessage(), this.name, MessageType.SERVER_GLOBAL_MESSAGE));
 							v.getOS().flush();
@@ -101,16 +106,17 @@ public class ClientHandler implements Runnable {
 					/*
 					 * when client sends a private message
 					 */
-					ObjectOutputStream out_ = server.getClients().get(message.getPerson()).getOS(); 
+					ObjectOutputStream out_ = server.getClients().get(message.getPerson()).getOS();
 					out_.writeObject(new Message(message.getMessage(), this.name, MessageType.SERVER_PRIVATE_MESSAGE));
 					out_.flush();
 				}
-				
+
+
 			}
 		} catch (ClassNotFoundException cnfe) {
 			System.out.println("Error establishing connection: " + cnfe.getMessage());
 		} catch (SocketException se) {
-            System.out.println(name + " at " + socket.getInetAddress().getHostAddress()+" left the Chat!");		
+            System.out.println(name + " at " + socket.getInetAddress().getHostAddress()+" left the Chat!");
             server.getsLabel().setText(server.getsLabel().getText() + "\n\n" + name + " at " + socket.getRemoteSocketAddress()+" left the Chat!");
             server.getClients().remove(name);
 			server.getClients().forEach((k,v) -> {
@@ -123,15 +129,16 @@ public class ClientHandler implements Runnable {
 			});
 		} catch (IOException ioe) {
 			System.out.println("Error establishing connection: " + ioe.getMessage());
-		} 
+		}
 	}
-	
+
 	/*
-	 * global variables 
+	 * global variables
 	 */
 	private ObjectInputStream in;
 	private ObjectOutputStream out;
 	private String name;
 	private Socket socket;
 	private Server server;
+	private GroupChat groupChat;
 }

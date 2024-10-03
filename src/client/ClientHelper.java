@@ -58,14 +58,14 @@ public class ClientHelper implements Runnable{
 		/*
 		 * get all online users from server, asked before starting this thread
 		 */
-//		new SwingWorker<Object, Object>() {
-//
-//			@Override
-//			protected Object doInBackground() throws Exception {
+
 		try {
+				// Đọc một đối tượng từ ObjectInputStream
 				Message message = (Message)Gui.getIn().readObject();
+				// Lấy danh sách người dùng
 				for(String name : message.getClients()) {
 					if(!name.equals(Gui.getName()))
+						// Thêm người dùng vào danh sách cuộc trò chuyện, ban đầu là chuỗi rỗng
 						chats.put(name, "");
 				}
 
@@ -75,13 +75,14 @@ public class ClientHelper implements Runnable{
 				SwingUtilities.invokeLater(new Runnable() {
 					public void run() {
 						setChatsGUI();
-					}
+					} // cập nhật lại giao diẹn người dùng onlien
 				});
 				// Làm mới giao diện người dùng bằng SwingUtilities.invokeLate để đảm bảo các luồng hoạt động an toàn
 
 				/*
 				 * keep listening for messages form server
 				 */
+				// Lắng nghe tin nhắn mới
 				while(true) {
 					message = (Message)Gui.getIn().readObject();
 
@@ -108,19 +109,23 @@ public class ClientHelper implements Runnable{
 							});
 						}
 					} else if(message.getmType() == MessageType.SEND_CLIENT_LIST_LEFT) {
+						// xử lí người dùng thoát khỏi danh sách
 						chats.remove(message.getMessage());
+						// xoá người dùng đó ra khỏi danh sách chat
 						if(chatWith == null) {
 							SwingUtilities.invokeLater(new Runnable() {
 								public void run() {
 									setChatsGUI();
-								}
+								} // cập nhâật lại giao diện
 							});
 						}
 					} else if(message.getmType() == MessageType.SERVER_PRIVATE_MESSAGE) {
 						/*
 						 * server sends a private message from one of the other clients
 						 */
+						// xử lí tin nhắn riêng
 						if(chatWith != null && chatWith == message.getPerson()) {
+							// Kiểm tra người gửi tin nhắn có phải là người đang trò chuyện không
 							/*
 							 * if currently chatting with the corresponding client only update the chat
 							 */
@@ -152,6 +157,7 @@ public class ClientHelper implements Runnable{
 						/*
 						 * server sends a global message from one of the clients
 						 */
+						// Xử lí tin nhắn tổng
 						final Message msg = message;
 						SwingUtilities.invokeLater(new Runnable() {
 							public void run() {
@@ -234,6 +240,10 @@ public class ClientHelper implements Runnable{
 
 	}
 
+
+
+
+
 	/*
 	 * when a users clicks on one of the private chats
 	 */
@@ -248,7 +258,7 @@ public class ClientHelper implements Runnable{
 		privateChatArea = new JTextArea();
 		privateChatArea.setEditable(false);
 		privateChatArea.setFont(privateChatArea.getFont().deriveFont(18f));
-		privateChatArea.setBackground(new Color(135, 161, 204));
+		privateChatArea.setBackground(new Color(77, 149, 37));
 		privateChatArea.setText(chat);
 		privateChatAreaPane.setViewportView(privateChatArea);
 		final String chatName = name;

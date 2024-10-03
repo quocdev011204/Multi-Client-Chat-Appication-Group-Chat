@@ -48,6 +48,13 @@ public class Message implements Serializable {
 		this.fileName = fileName;
 	}
 
+	public Message(String message, String person, String groupName) {
+		this.mType = MessageType.CLIENT_GLOBAL_MESSAGE; // Change accordingly
+		this.message = message;
+		this.person = person;
+		this.groupName = groupName; // New field for group
+	}
+
 
 	public String getMessage() {
 		return message;
